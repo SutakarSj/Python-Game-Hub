@@ -1,16 +1,78 @@
 import streamlit as st
+import time
 
-# Initialize board
+# ================= PAGE CONFIG =================
+st.set_page_config(
+    page_title="Unbeatable AI Tic Tac Toe",
+    page_icon="🔥",
+    layout="centered"
+)
+
+# ================= CUSTOM CSS =================
+st.markdown("""
+<style>
+
+.main {
+    background-color: #0f172a;
+    color: white;
+}
+
+.title {
+    text-align: center;
+    font-size: 45px;
+    font-weight: bold;
+    color: #38bdf8;
+    margin-bottom: 20px;
+}
+
+.attempt-box {
+    background: #1e293b;
+    padding: 12px;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 20px;
+    margin-bottom: 20px;
+    border: 1px solid #38bdf8;
+}
+
+.stButton > button {
+    width: 100%;
+    height: 90px;
+    font-size: 30px;
+    border-radius: 15px;
+    border: 2px solid #38bdf8;
+    background-color: #111827;
+    color: white;
+    transition: 0.3s;
+}
+
+.stButton > button:hover {
+    border-color: cyan;
+    transform: scale(1.05);
+}
+
+.footer {
+    text-align: center;
+    color: gray;
+    margin-top: 30px;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+# ================= SESSION STATE =================
 if "board" not in st.session_state:
     st.session_state.board = ["-"] * 9
 
 if "gameover" not in st.session_state:
     st.session_state.gameover = False
 
+if "attempts" not in st.session_state:
+    st.session_state.attempts = 0
+
 board = st.session_state.board
 
-
-# CHECK WINNER
+# ================= CHECK WINNER =================
 def checkwinner(board, player):
 
     wins = [
@@ -31,7 +93,7 @@ def checkwinner(board, player):
     return False
 
 
-# MINIMAX AI
+# ================= MINIMAX AI =================
 def minimax(board, depth, isMaximizing):
 
     if checkwinner(board, "O"):
@@ -82,7 +144,7 @@ def minimax(board, depth, isMaximizing):
         return bestscore
 
 
-# COMPUTER MOVE
+# ================= COMPUTER MOVE =================
 def computer_move():
 
     bestscore = -100
@@ -106,12 +168,14 @@ def computer_move():
     board[bestmove] = "O"
 
 
-# PLAYER MOVE
+# ================= PLAYER MOVE =================
 def player_move(index):
 
     if board[index] == "-" and not st.session_state.gameover:
 
         board[index] = "X"
+
+        st.session_state.attempts += 1
 
         # PLAYER WIN
         if checkwinner(board, "X"):
@@ -122,6 +186,10 @@ def player_move(index):
         if "-" not in board:
             st.session_state.gameover = True
             return
+
+        # AI THINKING EFFECT
+        with st.spinner("AI is thinking..."):
+            time.sleep(0.3)
 
         # AI MOVE
         computer_move()
@@ -136,11 +204,21 @@ def player_move(index):
             st.session_state.gameover = True
 
 
-# ================= UI =================
+# ================= TITLE =================
+st.markdown("""
+<div class='title'>
+🔥 Unbeatable AI Tic Tac Toe
+</div>
+""", unsafe_allow_html=True)
 
-st.title("🔥 Unbeatable AI Tic Tac Toe")
+# ================= ATTEMPTS =================
+st.markdown(f"""
+<div class='attempt-box'>
+🎯 Attempts Taken: <b>{st.session_state.attempts}</b>
+</div>
+""", unsafe_allow_html=True)
 
-# GAME BOARD
+# ================= GAME BOARD =================
 for row in range(3):
 
     cols = st.columns(3)
@@ -149,41 +227,51 @@ for row in range(3):
 
         index = row * 3 + col
 
+        symbol = board[index]
+
+        if symbol == "-":
+            symbol = " "
+
         cols[col].button(
-            board[index],
+            symbol,
             key=index,
             on_click=player_move,
             args=(index,)
         )
 
-
-# RESULT
+# ================= RESULT =================
 if checkwinner(board, "X"):
 
-    st.success("🎉 You Win")
+    st.success(
+        f"🎉 You Won in {st.session_state.attempts} attempts!"
+    )
 
 elif checkwinner(board, "O"):
 
-    st.error("😈 AI Wins")
+    st.error(
+        f"😈 AI Won! You survived {st.session_state.attempts} attempts."
+    )
 
 elif "-" not in board:
 
-    st.warning("🤝 It's a Tie")
+    st.warning(
+        f"🤝 Tie Match in {st.session_state.attempts} attempts."
+    )
 
-
-# RESTART BUTTON
-if st.button("Restart Game"):
+# ================= RESTART =================
+if st.button("🔄 Restart Game"):
 
     st.session_state.board = ["-"] * 9
     st.session_state.gameover = False
+    st.session_state.attempts = 0
 
     st.rerun()
 
-
 # ================= EXTRA CONTENT =================
+st.markdown("---")
 
 st.markdown("""
-<h3 style='color:cyan;'>
+<h3 style='text-align:center; color:cyan;'>
 "Beat me if you can 😈"
 </h3>
 """, unsafe_allow_html=True)
@@ -193,17 +281,10 @@ st.markdown("---")
 st.subheader("🎮 How To Play")
 
 st.write("""
-- You are X
-- AI is O
+- You are **X**
+- AI is **O**
 - Click any box to place your move
 - Try to survive against the unbeatable AI 😈
-""")
-
-st.markdown("""
-### 🔗 Connect With Me
-
-- GitHub: https://github.com/yourname
-- LinkedIn: https://linkedin.com/in/yourname
 """)
 
 st.markdown("---")
@@ -211,7 +292,7 @@ st.markdown("---")
 st.subheader("💭 About The AI")
 
 st.write("""
-This AI uses the Minimax Algorithm to predict all possible future moves.
+This AI uses the **Minimax Algorithm** to predict all possible future moves.
 
 That means:
 - It never makes mistakes
@@ -221,8 +302,17 @@ That means:
 
 st.markdown("---")
 
-st.caption("⚡ Built by Sutakar using Python + Streamlit")
+st.subheader("🔗 Connect With Me")
 
-st.markdown("---")
+st.write("""
+- GitHub: https://github.com/yourname
+- LinkedIn: https://linkedin.com/in/yourname
+""")
 
-st.caption("Made with ❤️ by Sutakar")
+st.markdown("""
+<div class='footer'>
+⚡ Built by Sutakar using Python + Streamlit
+<br><br>
+Made with ❤️ by Sutakar
+</div>
+""", unsafe_allow_html=True)
