@@ -38,45 +38,61 @@ st.markdown("""
     color: white;
 }
 
-/* GAME BUTTONS */
-.stButton > button {
+/* GAME BOXES ONLY */
+div[data-testid="column"] button {
 
-    width: 100%;
-    aspect-ratio: 1 / 1;
+    width: 120px !important;
+    height: 120px !important;
 
-    font-size: 55px !important;
-    font-weight: bold;
+    font-size: 65px !important;
+    font-weight: bold !important;
 
-    border-radius: 20px;
-    border: 3px solid #38bdf8;
+    border-radius: 25px !important;
 
-    background-color: #0f172a;
-    color: white;
+    border: 3px solid #38bdf8 !important;
 
-    transition: 0.25s ease-in-out;
-
-    margin-bottom: 10px;
-}
-
-/* HOVER EFFECT */
-.stButton > button:hover {
-
-    border-color: cyan;
-    transform: scale(1.04);
-
-    box-shadow: 0px 0px 20px cyan;
-}
-
-/* WINNING CELLS */
-.winner button {
-
-    background-color: #7f1d1d !important;
-
-    border: 4px solid red !important;
+    background: linear-gradient(
+        145deg,
+        #0f172a,
+        #111827
+    ) !important;
 
     color: white !important;
 
-    box-shadow: 0px 0px 20px red !important;
+    box-shadow:
+        0px 0px 12px #38bdf8,
+        inset 0px 0px 15px rgba(255,255,255,0.05);
+
+    transition: 0.2s ease-in-out;
+
+    margin-bottom: 15px;
+}
+
+/* HOVER EFFECT */
+div[data-testid="column"] button:hover {
+
+    transform: scale(1.06);
+
+    border-color: cyan !important;
+
+    box-shadow:
+        0px 0px 25px cyan,
+        inset 0px 0px 15px rgba(255,255,255,0.1);
+}
+
+/* WINNER CELLS */
+.winner button {
+
+    border: 4px solid red !important;
+
+    box-shadow:
+        0px 0px 35px red !important;
+}
+
+/* NORMAL BUTTONS */
+.stButton > button {
+
+    border-radius: 12px;
 }
 
 /* MOBILE RESPONSIVE */
@@ -86,11 +102,12 @@ st.markdown("""
         font-size: 34px;
     }
 
-    .stButton > button {
+    div[data-testid="column"] button {
 
-        font-size: 38px !important;
+        width: 90px !important;
+        height: 90px !important;
 
-        border-radius: 15px;
+        font-size: 45px !important;
     }
 
     .attempt-box {
@@ -243,7 +260,7 @@ def player_move(index):
             st.session_state.gameover = True
             return
 
-        # AI THINKING EFFECT
+        # AI THINKING
         with st.spinner("AI is thinking..."):
             time.sleep(0.3)
 
@@ -287,10 +304,17 @@ for row in range(3):
 
         symbol = board[index]
 
+        # 3D SYMBOLS
         if symbol == "-":
-            symbol = ""
+            display_symbol = ""
 
-        # WINNER CELL
+        elif symbol == "X":
+            display_symbol = "✖"
+
+        else:
+            display_symbol = "◉"
+
+        # WINNER STYLE
         if index in st.session_state.winner_cells:
 
             cols[col].markdown(
@@ -299,7 +323,7 @@ for row in range(3):
             )
 
         cols[col].button(
-            symbol,
+            display_symbol,
             key=index,
             on_click=player_move,
             args=(index,)
