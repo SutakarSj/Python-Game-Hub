@@ -21,7 +21,7 @@ st.markdown("""
 /* TITLE */
 .title {
     text-align: center;
-    font-size: 60px;
+    font-size: 65px;
     font-weight: bold;
     color: #38bdf8;
     margin-bottom: 20px;
@@ -29,133 +29,91 @@ st.markdown("""
 
 /* ATTEMPTS BOX */
 .attempt-box {
-
     background: #1e2a5a;
-
-    border: 2px solid #38bdf8;
-
+    border: 3px solid #38bdf8;
     border-radius: 20px;
-
     padding: 18px;
-
     text-align: center;
-
-    font-size: 30px;
-
+    font-size: 32px;
     font-weight: bold;
-
-    margin-bottom: 35px;
-
+    margin-bottom: 40px;
     color: white;
 }
 
-/* BOARD */
-.board-wrapper {
-
+/* GAME BOARD */
+.board-container {
     display: flex;
-
-    justify-content: center;
-
-    align-items: center;
-}
-
-/* COLUMNS */
-div[data-testid="column"] {
-
-    display: flex;
-
     justify-content: center;
 }
 
-/* GAME BUTTONS */
+/* ONLY GAME GRID BUTTONS */
 div[data-testid="column"] button {
 
-    width: 120px !important;
-    height: 120px !important;
+    width: 140px !important;
+    height: 140px !important;
 
     margin: 8px !important;
 
-    border-radius: 18px !important;
+    border-radius: 28px !important;
 
-    border: 3px solid #38bdf8 !important;
+    border: 3px solid #3b82f6 !important;
 
-    background: #0f172a !important;
+    background: linear-gradient(
+        145deg,
+        #0f172a,
+        #111827
+    ) !important;
+
+    font-size: 72px !important;
+    font-weight: bold !important;
 
     color: white !important;
 
-    font-size: 70px !important;
-
-    font-weight: bold !important;
-
     box-shadow:
-        0px 0px 12px rgba(56,189,248,0.3),
-        inset 0px 0px 10px rgba(255,255,255,0.04);
+        0px 0px 15px rgba(59,130,246,0.4),
+        inset 0px 0px 12px rgba(255,255,255,0.04);
 
-    transition: 0.2s ease;
+    transition: all 0.25s ease;
 }
 
-/* HOVER EFFECT */
+/* HOVER */
 div[data-testid="column"] button:hover {
 
-    transform: scale(1.05);
+    transform: scale(1.06);
 
     border-color: cyan !important;
 
     box-shadow:
-        0px 0px 25px cyan,
-        inset 0px 0px 10px rgba(255,255,255,0.08);
+        0px 0px 30px cyan,
+        inset 0px 0px 12px rgba(255,255,255,0.08);
 }
 
-/* WINNER CELLS */
+/* WINNING BOXES */
 .winner button {
 
     border: 4px solid red !important;
 
     box-shadow:
-        0px 0px 30px red !important;
+        0px 0px 40px red !important;
 }
 
-/* WIN LINE */
-.win-line {
-
-    height: 6px;
-
-    width: 420px;
-
-    background: red;
-
-    border-radius: 20px;
-
-    margin: auto;
-
-    margin-top: -220px;
-
-    margin-bottom: 220px;
-
-    box-shadow: 0px 0px 20px red;
-}
-
-/* RESTART BUTTON */
+/* NORMAL BUTTON */
 .restart-btn button {
 
     width: auto !important;
-
     height: auto !important;
 
     font-size: 18px !important;
 
-    padding: 10px 20px !important;
-
     border-radius: 12px !important;
+
+    padding: 12px 20px !important;
 }
 
 /* FOOTER */
 .footer {
-
     text-align: center;
-
     color: gray;
-
     margin-top: 40px;
 }
 
@@ -163,7 +121,7 @@ div[data-testid="column"] button:hover {
 @media (max-width: 768px) {
 
     .title {
-        font-size: 38px;
+        font-size: 42px;
     }
 
     .attempt-box {
@@ -172,19 +130,10 @@ div[data-testid="column"] button:hover {
 
     div[data-testid="column"] button {
 
-        width: 85px !important;
-        height: 85px !important;
+        width: 90px !important;
+        height: 90px !important;
 
-        font-size: 48px !important;
-    }
-
-    .win-line {
-
-        width: 280px;
-
-        margin-top: -160px;
-
-        margin-bottom: 160px;
+        font-size: 50px !important;
     }
 }
 
@@ -246,7 +195,6 @@ def minimax(board, depth, isMaximizing):
     if "" not in board:
         return 0
 
-    # AI TURN
     if isMaximizing:
 
         bestscore = -100
@@ -265,7 +213,6 @@ def minimax(board, depth, isMaximizing):
 
         return bestscore
 
-    # PLAYER TURN
     else:
 
         bestscore = 100
@@ -332,7 +279,6 @@ def player_move(index):
         with st.spinner("AI is thinking..."):
             time.sleep(0.3)
 
-        # AI MOVE
         computer_move()
 
         # AI WIN
@@ -361,8 +307,6 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # ================= GAME BOARD =================
-st.markdown("<div class='board-wrapper'>", unsafe_allow_html=True)
-
 for row in range(3):
 
     cols = st.columns(3)
@@ -373,20 +317,17 @@ for row in range(3):
 
         symbol = board[index]
 
-        # DISPLAY SYMBOLS
+        # 3D SYMBOLS
         if symbol == "X":
-
             display_symbol = "✖"
 
         elif symbol == "O":
-
             display_symbol = "◉"
 
         else:
-
             display_symbol = ""
 
-        # WINNER CELLS
+        # WINNER STYLE
         if index in st.session_state.winner_cells:
 
             cols[col].markdown(
@@ -407,15 +348,6 @@ for row in range(3):
                 "</div>",
                 unsafe_allow_html=True
             )
-
-st.markdown("</div>", unsafe_allow_html=True)
-
-# ================= WIN LINE =================
-if len(st.session_state.winner_cells) == 3:
-
-    st.markdown("""
-    <div class='win-line'></div>
-    """, unsafe_allow_html=True)
 
 # ================= RESULT =================
 if checkwinner(board, "X"):
