@@ -13,44 +13,92 @@ st.markdown("""
 <style>
 
 .main {
-    background-color: #0f172a;
+    background-color: #020617;
     color: white;
 }
 
+/* TITLE */
 .title {
     text-align: center;
-    font-size: 45px;
+    font-size: 48px;
     font-weight: bold;
     color: #38bdf8;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
 }
 
+/* ATTEMPTS BOX */
 .attempt-box {
-    background: #1e293b;
-    padding: 12px;
-    border-radius: 12px;
-    text-align: center;
-    font-size: 20px;
-    margin-bottom: 20px;
-    border: 1px solid #38bdf8;
-}
-
-.stButton > button {
-    width: 100%;
-    height: 90px;
-    font-size: 30px;
+    background: #172554;
+    padding: 14px;
     border-radius: 15px;
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 30px;
     border: 2px solid #38bdf8;
-    background-color: #111827;
     color: white;
-    transition: 0.3s;
 }
 
+/* GAME BUTTONS */
+.stButton > button {
+
+    width: 100%;
+    aspect-ratio: 1 / 1;
+
+    font-size: 55px !important;
+    font-weight: bold;
+
+    border-radius: 20px;
+    border: 3px solid #38bdf8;
+
+    background-color: #0f172a;
+    color: white;
+
+    transition: 0.25s ease-in-out;
+
+    margin-bottom: 10px;
+}
+
+/* HOVER EFFECT */
 .stButton > button:hover {
+
     border-color: cyan;
-    transform: scale(1.05);
+    transform: scale(1.04);
+
+    box-shadow: 0px 0px 20px cyan;
 }
 
+/* WINNING CELLS */
+.winner button {
+
+    background-color: #7f1d1d !important;
+
+    border: 4px solid red !important;
+
+    color: white !important;
+
+    box-shadow: 0px 0px 20px red !important;
+}
+
+/* MOBILE RESPONSIVE */
+@media (max-width: 768px) {
+
+    .title {
+        font-size: 34px;
+    }
+
+    .stButton > button {
+
+        font-size: 38px !important;
+
+        border-radius: 15px;
+    }
+
+    .attempt-box {
+        font-size: 18px;
+    }
+}
+
+/* FOOTER */
 .footer {
     text-align: center;
     color: gray;
@@ -70,6 +118,9 @@ if "gameover" not in st.session_state:
 if "attempts" not in st.session_state:
     st.session_state.attempts = 0
 
+if "winner_cells" not in st.session_state:
+    st.session_state.winner_cells = []
+
 board = st.session_state.board
 
 # ================= CHECK WINNER =================
@@ -88,6 +139,9 @@ def checkwinner(board, player):
             board[win[1]] ==
             board[win[2]] == player
         ):
+
+            st.session_state.winner_cells = win
+
             return True
 
     return False
@@ -179,11 +233,13 @@ def player_move(index):
 
         # PLAYER WIN
         if checkwinner(board, "X"):
+
             st.session_state.gameover = True
             return
 
         # TIE
         if "-" not in board:
+
             st.session_state.gameover = True
             return
 
@@ -196,11 +252,13 @@ def player_move(index):
 
         # AI WIN
         if checkwinner(board, "O"):
+
             st.session_state.gameover = True
             return
 
         # TIE
         if "-" not in board:
+
             st.session_state.gameover = True
 
 
@@ -230,7 +288,15 @@ for row in range(3):
         symbol = board[index]
 
         if symbol == "-":
-            symbol = " "
+            symbol = ""
+
+        # WINNER CELL
+        if index in st.session_state.winner_cells:
+
+            cols[col].markdown(
+                "<div class='winner'>",
+                unsafe_allow_html=True
+            )
 
         cols[col].button(
             symbol,
@@ -238,6 +304,13 @@ for row in range(3):
             on_click=player_move,
             args=(index,)
         )
+
+        if index in st.session_state.winner_cells:
+
+            cols[col].markdown(
+                "</div>",
+                unsafe_allow_html=True
+            )
 
 # ================= RESULT =================
 if checkwinner(board, "X"):
@@ -264,6 +337,7 @@ if st.button("🔄 Restart Game"):
     st.session_state.board = ["-"] * 9
     st.session_state.gameover = False
     st.session_state.attempts = 0
+    st.session_state.winner_cells = []
 
     st.rerun()
 
