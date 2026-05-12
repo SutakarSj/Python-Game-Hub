@@ -18,65 +18,66 @@ st.markdown("""
     color: white;
 }
 
-/* HIDE STREAMLIT UI */
+/* HIDE STREAMLIT */
 #MainMenu {visibility: hidden;}
 footer {visibility: hidden;}
 header {visibility: hidden;}
 
 /* TITLE */
 .title {
-
     text-align: center;
-
-    font-size: 55px;
-
+    font-size: 42px;
     font-weight: bold;
-
     color: #38bdf8;
-
     margin-bottom: 20px;
 }
 
-/* ATTEMPT BOX */
+/* ATTEMPTS */
 .attempt-box {
 
     background: #1e2a5a;
 
     border: 2px solid #38bdf8;
 
-    border-radius: 20px;
+    border-radius: 18px;
 
-    padding: 16px;
+    padding: 14px;
 
     text-align: center;
 
-    font-size: 28px;
+    font-size: 22px;
 
     font-weight: bold;
 
-    margin-bottom: 30px;
-
-    color: white;
+    margin-bottom: 25px;
 }
 
-/* GAME BOARD */
-.board-container {
+/* BOARD */
+.board {
 
     display: flex;
 
-    justify-content: center;
+    flex-direction: column;
 
     align-items: center;
 
-    margin-top: 10px;
+    gap: 10px;
 }
 
-/* GAME CELL BUTTONS ONLY */
-.board-cell button {
+/* ROW */
+.row {
 
-    width: 95px !important;
+    display: flex;
 
-    height: 95px !important;
+    gap: 10px;
+}
+
+/* GAME BUTTONS */
+.cell button {
+
+    width: 90px !important;
+
+    height: 90px !important;
 
     border-radius: 18px !important;
 
@@ -86,79 +87,75 @@ header {visibility: hidden;}
 
     color: white !important;
 
-    font-size: 48px !important;
+    font-size: 42px !important;
 
     font-weight: bold !important;
 
-    box-shadow:
-        0px 0px 15px rgba(56,189,248,0.3),
-        inset 0px 0px 8px rgba(255,255,255,0.05);
-
     transition: 0.2s ease;
+
+    box-shadow:
+        0px 0px 12px rgba(56,189,248,0.3);
 }
 
 /* HOVER */
-.board-cell button:hover {
+.cell button:hover {
 
     transform: scale(1.05);
 
     border-color: cyan !important;
 
     box-shadow:
-        0px 0px 25px cyan,
-        inset 0px 0px 10px rgba(255,255,255,0.08);
+        0px 0px 20px cyan;
 }
 
-/* WINNER CELLS */
+/* WINNER */
 .winner button {
 
-    border: 4px solid red !important;
+    border: 3px solid red !important;
 
     box-shadow:
-        0px 0px 25px red !important;
+        0px 0px 20px red !important;
 }
 
-/* SMALL RESTART BUTTON */
+/* RESTART BUTTON */
 .restart-btn button {
 
     width: auto !important;
 
     height: auto !important;
 
-    padding: 10px 18px !important;
+    padding: 8px 16px !important;
 
     font-size: 15px !important;
 
-    border-radius: 12px !important;
-
-    background: #111827 !important;
-
-    border: 2px solid #38bdf8 !important;
+    border-radius: 10px !important;
 
     margin-top: 20px;
 }
 
-/* WINNER LINE */
-.win-line {
+/* MOBILE */
+@media (max-width: 768px) {
 
-    height: 6px;
+    .title {
 
-    background: red;
+        font-size: 32px;
+    }
 
-    border-radius: 20px;
+    .attempt-box {
 
-    margin: auto;
+        font-size: 18px;
+    }
 
-    margin-top: -165px;
+    .cell button {
 
-    margin-bottom: 160px;
+        width: 72px !important;
 
-    width: 300px;
+        height: 72px !important;
 
-    box-shadow: 0px 0px 20px red;
+        font-size: 34px !important;
+    }
 }
 
-/* FOOTER */
 .footer {
 
     text-align: center;
@@ -168,42 +165,10 @@ header {visibility: hidden;}
     margin-top: 40px;
 }
 
-/* MOBILE */
-@media (max-width: 768px) {
-
-    .title {
-
-        font-size: 38px;
-    }
-
-    .attempt-box {
-
-        font-size: 20px;
-    }
-
-    .board-cell button {
-
-        width: 80px !important;
-
-        height: 80px !important;
-
-        font-size: 38px !important;
-    }
-
-    .win-line {
-
-        width: 250px;
-
-        margin-top: -140px;
-
-        margin-bottom: 140px;
-    }
-}
-
 </style>
 """, unsafe_allow_html=True)
 
-# ================= SESSION STATE =================
+# ================= SESSION =================
 if "board" not in st.session_state:
     st.session_state.board = [""] * 9
 
@@ -218,7 +183,7 @@ if "winner_cells" not in st.session_state:
 
 board = st.session_state.board
 
-# ================= CHECK WINNER =================
+# ================= WIN CHECK =================
 def checkwinner(board, player):
 
     wins = [
@@ -340,7 +305,7 @@ def player_move(index):
 
         # AI THINKING
         with st.spinner("AI is thinking..."):
-            time.sleep(0.3)
+            time.sleep(0.2)
 
         # AI MOVE
         computer_move()
@@ -372,6 +337,8 @@ st.markdown(f"""
 
 # ================= GAME BOARD =================
 
+st.markdown("<div class='board'>", unsafe_allow_html=True)
+
 for row in range(3):
 
     cols = st.columns(3)
@@ -382,27 +349,22 @@ for row in range(3):
 
         symbol = board[index]
 
-        # SYMBOLS
         if symbol == "X":
-
-            display_symbol = "✖"
+            display = "✖"
 
         elif symbol == "O":
-
-            display_symbol = "◉"
+            display = "◉"
 
         else:
-
-            display_symbol = ""
+            display = ""
 
         with cols[col]:
 
             st.markdown(
-                "<div class='board-cell'>",
+                "<div class='cell'>",
                 unsafe_allow_html=True
             )
 
-            # WINNER CELLS
             if index in st.session_state.winner_cells:
 
                 st.markdown(
@@ -411,7 +373,7 @@ for row in range(3):
                 )
 
             st.button(
-                display_symbol,
+                display,
                 key=index,
                 on_click=player_move,
                 args=(index,)
@@ -429,12 +391,7 @@ for row in range(3):
                 unsafe_allow_html=True
             )
 
-# ================= WIN LINE =================
-if len(st.session_state.winner_cells) == 3:
-
-    st.markdown("""
-    <div class='win-line'></div>
-    """, unsafe_allow_html=True)
+st.markdown("</div>", unsafe_allow_html=True)
 
 # ================= RESULT =================
 if checkwinner(board, "X"):
@@ -469,52 +426,11 @@ if st.button("🔄 Restart Game"):
 
 st.markdown("</div>", unsafe_allow_html=True)
 
-# ================= EXTRA CONTENT =================
+# ================= FOOTER =================
 st.markdown("---")
-
-st.markdown("""
-<h2 style='text-align:center; color:cyan;'>
-"Beat me if you can 😈"
-</h2>
-""", unsafe_allow_html=True)
-
-st.markdown("---")
-
-st.subheader("🎮 How To Play")
-
-st.write("""
-- You are **X**
-- AI is **O**
-- Click any box to place your move
-- Try to survive against the unbeatable AI 😈
-""")
-
-st.markdown("---")
-
-st.subheader("💭 About The AI")
-
-st.write("""
-This AI uses the **Minimax Algorithm** to predict all possible future moves.
-
-That means:
-- It never makes mistakes
-- It never loses
-- Best possible result against it is a tie 😈
-""")
-
-st.markdown("---")
-
-st.subheader("🔗 Connect With Me")
-
-st.write("""
-- GitHub: https://github.com/yourname
-- LinkedIn: https://linkedin.com/in/yourname
-""")
 
 st.markdown("""
 <div class='footer'>
 ⚡ Built by Sutakar using Python + Streamlit
-<br><br>
-Made with ❤️ by Sutakar
 </div>
 """, unsafe_allow_html=True)
