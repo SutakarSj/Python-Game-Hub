@@ -12,44 +12,51 @@ st.set_page_config(
 st.markdown("""
 <style>
 
-.main {
-    background-color: #020617;
+/* BACKGROUND */
+.stApp {
+    background-color: #050816;
     color: white;
 }
 
 /* TITLE */
 .title {
     text-align: center;
-    font-size: 48px;
+    font-size: 65px;
     font-weight: bold;
     color: #38bdf8;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 
 /* ATTEMPTS BOX */
 .attempt-box {
-    background: #172554;
-    padding: 14px;
-    border-radius: 15px;
+    background: #1e2a5a;
+    border: 3px solid #38bdf8;
+    border-radius: 20px;
+    padding: 18px;
     text-align: center;
-    font-size: 24px;
-    margin-bottom: 30px;
-    border: 2px solid #38bdf8;
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 40px;
     color: white;
 }
 
-/* GAME BOXES ONLY */
+/* GAME BOARD */
+.board-container {
+    display: flex;
+    justify-content: center;
+}
+
+/* ONLY GAME GRID BUTTONS */
 div[data-testid="column"] button {
 
-    width: 120px !important;
-    height: 120px !important;
+    width: 140px !important;
+    height: 140px !important;
 
-    font-size: 65px !important;
-    font-weight: bold !important;
+    margin: 8px !important;
 
-    border-radius: 25px !important;
+    border-radius: 28px !important;
 
-    border: 3px solid #38bdf8 !important;
+    border: 3px solid #3b82f6 !important;
 
     background: linear-gradient(
         145deg,
@@ -57,18 +64,19 @@ div[data-testid="column"] button {
         #111827
     ) !important;
 
+    font-size: 72px !important;
+    font-weight: bold !important;
+
     color: white !important;
 
     box-shadow:
-        0px 0px 12px #38bdf8,
-        inset 0px 0px 15px rgba(255,255,255,0.05);
+        0px 0px 15px rgba(59,130,246,0.4),
+        inset 0px 0px 12px rgba(255,255,255,0.04);
 
-    transition: 0.2s ease-in-out;
-
-    margin-bottom: 15px;
+    transition: all 0.25s ease;
 }
 
-/* HOVER EFFECT */
+/* HOVER */
 div[data-testid="column"] button:hover {
 
     transform: scale(1.06);
@@ -76,30 +84,48 @@ div[data-testid="column"] button:hover {
     border-color: cyan !important;
 
     box-shadow:
-        0px 0px 25px cyan,
-        inset 0px 0px 15px rgba(255,255,255,0.1);
+        0px 0px 30px cyan,
+        inset 0px 0px 12px rgba(255,255,255,0.08);
 }
 
-/* WINNER CELLS */
+/* WINNING BOXES */
 .winner button {
 
     border: 4px solid red !important;
 
     box-shadow:
-        0px 0px 35px red !important;
+        0px 0px 40px red !important;
 }
 
-/* NORMAL BUTTONS */
-.stButton > button {
+/* NORMAL BUTTON */
+.restart-btn button {
 
-    border-radius: 12px;
+    width: auto !important;
+    height: auto !important;
+
+    font-size: 18px !important;
+
+    border-radius: 12px !important;
+
+    padding: 12px 20px !important;
 }
 
-/* MOBILE RESPONSIVE */
+/* FOOTER */
+.footer {
+    text-align: center;
+    color: gray;
+    margin-top: 40px;
+}
+
+/* MOBILE */
 @media (max-width: 768px) {
 
     .title {
-        font-size: 34px;
+        font-size: 42px;
+    }
+
+    .attempt-box {
+        font-size: 22px;
     }
 
     div[data-testid="column"] button {
@@ -107,19 +133,8 @@ div[data-testid="column"] button:hover {
         width: 90px !important;
         height: 90px !important;
 
-        font-size: 45px !important;
+        font-size: 50px !important;
     }
-
-    .attempt-box {
-        font-size: 18px;
-    }
-}
-
-/* FOOTER */
-.footer {
-    text-align: center;
-    color: gray;
-    margin-top: 30px;
 }
 
 </style>
@@ -127,7 +142,7 @@ div[data-testid="column"] button:hover {
 
 # ================= SESSION STATE =================
 if "board" not in st.session_state:
-    st.session_state.board = ["-"] * 9
+    st.session_state.board = [""] * 9
 
 if "gameover" not in st.session_state:
     st.session_state.gameover = False
@@ -144,9 +159,14 @@ board = st.session_state.board
 def checkwinner(board, player):
 
     wins = [
-        [0,1,2], [3,4,5], [6,7,8],
-        [0,3,6], [1,4,7], [2,5,8],
-        [0,4,8], [2,4,6]
+        [0,1,2],
+        [3,4,5],
+        [6,7,8],
+        [0,3,6],
+        [1,4,7],
+        [2,5,8],
+        [0,4,8],
+        [2,4,6]
     ]
 
     for win in wins:
@@ -163,8 +183,7 @@ def checkwinner(board, player):
 
     return False
 
-
-# ================= MINIMAX AI =================
+# ================= MINIMAX =================
 def minimax(board, depth, isMaximizing):
 
     if checkwinner(board, "O"):
@@ -173,49 +192,46 @@ def minimax(board, depth, isMaximizing):
     if checkwinner(board, "X"):
         return depth - 10
 
-    if "-" not in board:
+    if "" not in board:
         return 0
 
-    # AI TURN
     if isMaximizing:
 
         bestscore = -100
 
         for i in range(9):
 
-            if board[i] == "-":
+            if board[i] == "":
 
                 board[i] = "O"
 
                 score = minimax(board, depth + 1, False)
 
-                board[i] = "-"
+                board[i] = ""
 
                 bestscore = max(score, bestscore)
 
         return bestscore
 
-    # PLAYER TURN
     else:
 
         bestscore = 100
 
         for i in range(9):
 
-            if board[i] == "-":
+            if board[i] == "":
 
                 board[i] = "X"
 
                 score = minimax(board, depth + 1, True)
 
-                board[i] = "-"
+                board[i] = ""
 
                 bestscore = min(score, bestscore)
 
         return bestscore
 
-
-# ================= COMPUTER MOVE =================
+# ================= AI MOVE =================
 def computer_move():
 
     bestscore = -100
@@ -223,13 +239,13 @@ def computer_move():
 
     for i in range(9):
 
-        if board[i] == "-":
+        if board[i] == "":
 
             board[i] = "O"
 
             score = minimax(board, 0, False)
 
-            board[i] = "-"
+            board[i] = ""
 
             if score > bestscore:
 
@@ -238,11 +254,10 @@ def computer_move():
 
     board[bestmove] = "O"
 
-
 # ================= PLAYER MOVE =================
 def player_move(index):
 
-    if board[index] == "-" and not st.session_state.gameover:
+    if board[index] == "" and not st.session_state.gameover:
 
         board[index] = "X"
 
@@ -255,7 +270,7 @@ def player_move(index):
             return
 
         # TIE
-        if "-" not in board:
+        if "" not in board:
 
             st.session_state.gameover = True
             return
@@ -264,7 +279,6 @@ def player_move(index):
         with st.spinner("AI is thinking..."):
             time.sleep(0.3)
 
-        # AI MOVE
         computer_move()
 
         # AI WIN
@@ -274,10 +288,9 @@ def player_move(index):
             return
 
         # TIE
-        if "-" not in board:
+        if "" not in board:
 
             st.session_state.gameover = True
-
 
 # ================= TITLE =================
 st.markdown("""
@@ -289,7 +302,7 @@ st.markdown("""
 # ================= ATTEMPTS =================
 st.markdown(f"""
 <div class='attempt-box'>
-🎯 Attempts Taken: <b>{st.session_state.attempts}</b>
+🎯 Attempts Taken: {st.session_state.attempts}
 </div>
 """, unsafe_allow_html=True)
 
@@ -305,14 +318,14 @@ for row in range(3):
         symbol = board[index]
 
         # 3D SYMBOLS
-        if symbol == "-":
-            display_symbol = ""
-
-        elif symbol == "X":
+        if symbol == "X":
             display_symbol = "✖"
 
-        else:
+        elif symbol == "O":
             display_symbol = "◉"
+
+        else:
+            display_symbol = ""
 
         # WINNER STYLE
         if index in st.session_state.winner_cells:
@@ -346,32 +359,36 @@ if checkwinner(board, "X"):
 elif checkwinner(board, "O"):
 
     st.error(
-        f"😈 AI Won! You survived {st.session_state.attempts} attempts."
+        f"😈 AI Won in {st.session_state.attempts} attempts!"
     )
 
-elif "-" not in board:
+elif "" not in board:
 
     st.warning(
-        f"🤝 Tie Match in {st.session_state.attempts} attempts."
+        f"🤝 Match Tie in {st.session_state.attempts} attempts!"
     )
 
 # ================= RESTART =================
+st.markdown("<div class='restart-btn'>", unsafe_allow_html=True)
+
 if st.button("🔄 Restart Game"):
 
-    st.session_state.board = ["-"] * 9
+    st.session_state.board = [""] * 9
     st.session_state.gameover = False
     st.session_state.attempts = 0
     st.session_state.winner_cells = []
 
     st.rerun()
 
+st.markdown("</div>", unsafe_allow_html=True)
+
 # ================= EXTRA CONTENT =================
 st.markdown("---")
 
 st.markdown("""
-<h3 style='text-align:center; color:cyan;'>
+<h2 style='text-align:center; color:cyan;'>
 "Beat me if you can 😈"
-</h3>
+</h2>
 """, unsafe_allow_html=True)
 
 st.markdown("---")
