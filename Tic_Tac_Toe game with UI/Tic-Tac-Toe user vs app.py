@@ -18,122 +18,155 @@ st.markdown("""
     color: white;
 }
 
+/* HIDE STREAMLIT MENU */
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+header {visibility: hidden;}
+
 /* TITLE */
 .title {
+
     text-align: center;
-    font-size: 65px;
+
+    font-size: 60px;
+
     font-weight: bold;
+
     color: #38bdf8;
+
     margin-bottom: 20px;
 }
 
 /* ATTEMPTS BOX */
 .attempt-box {
+
     background: #1e2a5a;
-    border: 3px solid #38bdf8;
+
+    border: 2px solid #38bdf8;
+
     border-radius: 20px;
+
     padding: 18px;
+
     text-align: center;
-    font-size: 32px;
+
+    font-size: 30px;
+
     font-weight: bold;
-    margin-bottom: 40px;
+
+    margin-bottom: 30px;
+
     color: white;
 }
 
-/* GAME BOARD */
-.board-container {
-    display: flex;
-    justify-content: center;
+/* BOARD GRID */
+.board-grid {
+
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 12px;
+
+    max-width: 420px;
+
+    margin: auto;
 }
 
-/* ONLY GAME GRID BUTTONS */
-div[data-testid="column"] button {
+/* GAME BUTTONS */
+div.stButton > button {
 
-    width: 140px !important;
-    height: 140px !important;
+    width: 100% !important;
 
-    margin: 8px !important;
+    aspect-ratio: 1 / 1;
 
-    border-radius: 28px !important;
+    border-radius: 20px !important;
 
-    border: 3px solid #3b82f6 !important;
+    border: 3px solid #38bdf8 !important;
 
-    background: linear-gradient(
-        145deg,
-        #0f172a,
-        #111827
-    ) !important;
-
-    font-size: 72px !important;
-    font-weight: bold !important;
+    background: #0f172a !important;
 
     color: white !important;
 
-    box-shadow:
-        0px 0px 15px rgba(59,130,246,0.4),
-        inset 0px 0px 12px rgba(255,255,255,0.04);
+    font-size: 65px !important;
 
-    transition: all 0.25s ease;
+    font-weight: bold !important;
+
+    box-shadow:
+        0px 0px 12px rgba(56,189,248,0.3),
+        inset 0px 0px 10px rgba(255,255,255,0.05);
+
+    transition: 0.2s ease;
 }
 
 /* HOVER */
-div[data-testid="column"] button:hover {
+div.stButton > button:hover {
 
-    transform: scale(1.06);
+    transform: scale(1.04);
 
     border-color: cyan !important;
 
     box-shadow:
-        0px 0px 30px cyan,
-        inset 0px 0px 12px rgba(255,255,255,0.08);
+        0px 0px 25px cyan,
+        inset 0px 0px 10px rgba(255,255,255,0.08);
 }
 
-/* WINNING BOXES */
+/* WINNER CELLS */
 .winner button {
 
     border: 4px solid red !important;
 
     box-shadow:
-        0px 0px 40px red !important;
+        0px 0px 30px red !important;
 }
 
-/* NORMAL BUTTON */
+/* RESTART BUTTON */
 .restart-btn button {
 
     width: auto !important;
-    height: auto !important;
+
+    aspect-ratio: auto !important;
+
+    padding: 12px 22px !important;
 
     font-size: 18px !important;
 
     border-radius: 12px !important;
 
-    padding: 12px 20px !important;
+    margin-top: 20px;
 }
 
 /* FOOTER */
 .footer {
+
     text-align: center;
+
     color: gray;
+
     margin-top: 40px;
 }
 
-/* MOBILE */
+/* MOBILE RESPONSIVE */
 @media (max-width: 768px) {
 
     .title {
+
         font-size: 42px;
     }
 
     .attempt-box {
+
         font-size: 22px;
     }
 
-    div[data-testid="column"] button {
+    .board-grid {
 
-        width: 90px !important;
-        height: 90px !important;
+        max-width: 320px;
+    }
 
-        font-size: 50px !important;
+    div.stButton > button {
+
+        font-size: 45px !important;
     }
 }
 
@@ -195,6 +228,7 @@ def minimax(board, depth, isMaximizing):
     if "" not in board:
         return 0
 
+    # AI TURN
     if isMaximizing:
 
         bestscore = -100
@@ -213,6 +247,7 @@ def minimax(board, depth, isMaximizing):
 
         return bestscore
 
+    # PLAYER TURN
     else:
 
         bestscore = 100
@@ -279,6 +314,7 @@ def player_move(index):
         with st.spinner("AI is thinking..."):
             time.sleep(0.3)
 
+        # AI MOVE
         computer_move()
 
         # AI WIN
@@ -307,47 +343,57 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # ================= GAME BOARD =================
-for row in range(3):
+st.markdown("<div class='board-grid'>", unsafe_allow_html=True)
 
-    cols = st.columns(3)
+cols = st.columns(3)
 
-    for col in range(3):
+for i in range(9):
 
-        index = row * 3 + col
+    symbol = board[i]
 
-        symbol = board[index]
+    # SYMBOLS
+    if symbol == "X":
 
-        # 3D SYMBOLS
-        if symbol == "X":
-            display_symbol = "✖"
+        display_symbol = "✖"
 
-        elif symbol == "O":
-            display_symbol = "◉"
+    elif symbol == "O":
 
-        else:
-            display_symbol = ""
+        display_symbol = "◉"
+
+    else:
+
+        display_symbol = ""
+
+    with cols[i % 3]:
 
         # WINNER STYLE
-        if index in st.session_state.winner_cells:
+        if i in st.session_state.winner_cells:
 
-            cols[col].markdown(
+            st.markdown(
                 "<div class='winner'>",
                 unsafe_allow_html=True
             )
 
-        cols[col].button(
+        st.button(
             display_symbol,
-            key=index,
+            key=i,
             on_click=player_move,
-            args=(index,)
+            args=(i,)
         )
 
-        if index in st.session_state.winner_cells:
+        if i in st.session_state.winner_cells:
 
-            cols[col].markdown(
+            st.markdown(
                 "</div>",
                 unsafe_allow_html=True
             )
+
+    # NEW ROW
+    if (i + 1) % 3 == 0 and i != 8:
+
+        cols = st.columns(3)
+
+st.markdown("</div>", unsafe_allow_html=True)
 
 # ================= RESULT =================
 if checkwinner(board, "X"):
