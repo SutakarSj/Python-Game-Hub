@@ -18,7 +18,7 @@ st.markdown("""
     color: white;
 }
 
-/* HIDE STREAMLIT MENU */
+/* HIDE STREAMLIT UI */
 #MainMenu {visibility: hidden;}
 footer {visibility: hidden;}
 header {visibility: hidden;}
@@ -28,7 +28,7 @@ header {visibility: hidden;}
 
     text-align: center;
 
-    font-size: 60px;
+    font-size: 55px;
 
     font-weight: bold;
 
@@ -37,7 +37,7 @@ header {visibility: hidden;}
     margin-bottom: 20px;
 }
 
-/* ATTEMPTS BOX */
+/* ATTEMPT BOX */
 .attempt-box {
 
     background: #1e2a5a;
@@ -46,11 +46,11 @@ header {visibility: hidden;}
 
     border-radius: 20px;
 
-    padding: 18px;
+    padding: 16px;
 
     text-align: center;
 
-    font-size: 30px;
+    font-size: 28px;
 
     font-weight: bold;
 
@@ -59,28 +59,26 @@ header {visibility: hidden;}
     color: white;
 }
 
-/* BOARD GRID */
-.board-grid {
+/* GAME BOARD */
+.board-container {
 
-    display: grid;
+    display: flex;
 
-    grid-template-columns: repeat(3, 1fr);
+    justify-content: center;
 
-    gap: 12px;
+    align-items: center;
 
-    max-width: 420px;
-
-    margin: auto;
+    margin-top: 10px;
 }
 
-/* GAME BUTTONS */
-div.stButton > button {
+/* GAME CELL BUTTONS ONLY */
+.board-cell button {
 
-    width: 100% !important;
+    width: 95px !important;
 
-    aspect-ratio: 1 / 1;
+    height: 95px !important;
 
-    border-radius: 20px !important;
+    border-radius: 18px !important;
 
     border: 3px solid #38bdf8 !important;
 
@@ -88,21 +86,21 @@ div.stButton > button {
 
     color: white !important;
 
-    font-size: 65px !important;
+    font-size: 48px !important;
 
     font-weight: bold !important;
 
     box-shadow:
-        0px 0px 12px rgba(56,189,248,0.3),
-        inset 0px 0px 10px rgba(255,255,255,0.05);
+        0px 0px 15px rgba(56,189,248,0.3),
+        inset 0px 0px 8px rgba(255,255,255,0.05);
 
     transition: 0.2s ease;
 }
 
 /* HOVER */
-div.stButton > button:hover {
+.board-cell button:hover {
 
-    transform: scale(1.04);
+    transform: scale(1.05);
 
     border-color: cyan !important;
 
@@ -117,23 +115,47 @@ div.stButton > button:hover {
     border: 4px solid red !important;
 
     box-shadow:
-        0px 0px 30px red !important;
+        0px 0px 25px red !important;
 }
 
-/* RESTART BUTTON */
+/* SMALL RESTART BUTTON */
 .restart-btn button {
 
     width: auto !important;
 
-    aspect-ratio: auto !important;
+    height: auto !important;
 
-    padding: 12px 22px !important;
+    padding: 10px 18px !important;
 
-    font-size: 18px !important;
+    font-size: 15px !important;
 
     border-radius: 12px !important;
 
+    background: #111827 !important;
+
+    border: 2px solid #38bdf8 !important;
+
     margin-top: 20px;
+}
+
+/* WINNER LINE */
+.win-line {
+
+    height: 6px;
+
+    background: red;
+
+    border-radius: 20px;
+
+    margin: auto;
+
+    margin-top: -165px;
+
+    margin-bottom: 160px;
+
+    width: 300px;
+
+    box-shadow: 0px 0px 20px red;
 }
 
 /* FOOTER */
@@ -146,27 +168,35 @@ div.stButton > button:hover {
     margin-top: 40px;
 }
 
-/* MOBILE RESPONSIVE */
+/* MOBILE */
 @media (max-width: 768px) {
 
     .title {
 
-        font-size: 42px;
+        font-size: 38px;
     }
 
     .attempt-box {
 
-        font-size: 22px;
+        font-size: 20px;
     }
 
-    .board-grid {
+    .board-cell button {
 
-        max-width: 320px;
+        width: 80px !important;
+
+        height: 80px !important;
+
+        font-size: 38px !important;
     }
 
-    div.stButton > button {
+    .win-line {
 
-        font-size: 45px !important;
+        width: 250px;
+
+        margin-top: -140px;
+
+        margin-bottom: 140px;
     }
 }
 
@@ -228,7 +258,6 @@ def minimax(board, depth, isMaximizing):
     if "" not in board:
         return 0
 
-    # AI TURN
     if isMaximizing:
 
         bestscore = -100
@@ -247,7 +276,6 @@ def minimax(board, depth, isMaximizing):
 
         return bestscore
 
-    # PLAYER TURN
     else:
 
         bestscore = 100
@@ -343,57 +371,70 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # ================= GAME BOARD =================
-st.markdown("<div class='board-grid'>", unsafe_allow_html=True)
 
-cols = st.columns(3)
+for row in range(3):
 
-for i in range(9):
+    cols = st.columns(3)
 
-    symbol = board[i]
+    for col in range(3):
 
-    # SYMBOLS
-    if symbol == "X":
+        index = row * 3 + col
 
-        display_symbol = "✖"
+        symbol = board[index]
 
-    elif symbol == "O":
+        # SYMBOLS
+        if symbol == "X":
 
-        display_symbol = "◉"
+            display_symbol = "✖"
 
-    else:
+        elif symbol == "O":
 
-        display_symbol = ""
+            display_symbol = "◉"
 
-    with cols[i % 3]:
+        else:
 
-        # WINNER STYLE
-        if i in st.session_state.winner_cells:
+            display_symbol = ""
+
+        with cols[col]:
 
             st.markdown(
-                "<div class='winner'>",
+                "<div class='board-cell'>",
                 unsafe_allow_html=True
             )
 
-        st.button(
-            display_symbol,
-            key=i,
-            on_click=player_move,
-            args=(i,)
-        )
+            # WINNER CELLS
+            if index in st.session_state.winner_cells:
 
-        if i in st.session_state.winner_cells:
+                st.markdown(
+                    "<div class='winner'>",
+                    unsafe_allow_html=True
+                )
+
+            st.button(
+                display_symbol,
+                key=index,
+                on_click=player_move,
+                args=(index,)
+            )
+
+            if index in st.session_state.winner_cells:
+
+                st.markdown(
+                    "</div>",
+                    unsafe_allow_html=True
+                )
 
             st.markdown(
                 "</div>",
                 unsafe_allow_html=True
             )
 
-    # NEW ROW
-    if (i + 1) % 3 == 0 and i != 8:
+# ================= WIN LINE =================
+if len(st.session_state.winner_cells) == 3:
 
-        cols = st.columns(3)
-
-st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("""
+    <div class='win-line'></div>
+    """, unsafe_allow_html=True)
 
 # ================= RESULT =================
 if checkwinner(board, "X"):
